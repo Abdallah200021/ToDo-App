@@ -1,0 +1,83 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static '/css/main.css' %}">
+    <title>To Do App</title>
+</head>
+<body>
+    <div class="container">
+        <div class="header-bar">
+            <div>
+                <h1>Hello {{request.user|title}}</h1>
+                <h1>{{request.user.permissions}}</h1>
+                <h3 style="margin:0">You have <i>{{count}}</i> incomplete task{{count|pluralize:"s"}}</h3>
+            </div>
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+            <a href="{% url 'login' %}">Login as Admin</a>  
+            {% endif %}
+        </div>
+
+        <div id="search-add-wrapper">
+            <form method="GET" class="search-form">
+                <input type="text" name='search-area' value="{{search_input}}">
+                <input class="button" type="submit" name="submit" value="Search">
+            </form>
+            {% if is_superuser %}
+            <button class="add-btn"><a id="add-link" href="{% url 'task-create' %}">Add Task</a></button>
+            {% endif %}
+        </div>
+       
+        
+        
+        <div class="task-items-wrapper">
+            {% for task in tasks %}
+            <div class="task-wrapper">
+                {% if task.complete %}
+                <div class="task-title">
+                    <div class="task-complete-items"></div>
+                    <i><s><a href="{% url 'task' task.id %}">{{task}}</a></s></i>
+                </div>
+                
+                <div class="task-btn">
+                    {% if is_superuser %}
+                    {{task.user}}
+                    <button class="delete-btn"><a class="delete-link" href="{% url 'task-delete' task.id %}">Delete</a></button>
+                    <button class="edit-btn"><a class="edit-link" href="{% url 'task-update' task.id %}">Edit</a></button>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="task-title">
+                    <div class="task-incomplete-items"></div>
+                    <a href="{% url 'task' task.id %}">{{task}}</a>
+                </div>
+                <div class="task-btn">
+                    {% if is_superuser %}
+                    {{task.user}}
+                    <button class="delete-btn"><a class="delete-link" href="{% url 'task-delete' task.id %}">Delete</a></button>
+                    <button class="edit-btn"><a class="edit-link" href="{% url 'task-update' task.id %}">Edit</a></button>
+                    {% endif %}
+                </div>
+                
+                {% endif %}
+                
+            </div>
+
+            {% empty %}
+            <h3>No items in the list!</h3>
+            {% endfor %}
+        </div>
+    </div>
+    
+</body>
+</html>
